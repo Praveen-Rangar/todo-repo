@@ -15,7 +15,7 @@ function getLocalItems() {
 
 function Content() {
   const [text, setText] = useState("");
-  const [task, setTask] = useState([]);
+  const [task, setTask] = useState(getLocalItems());
   const [sahi, setSahi] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [doneList, setDoneList] = useState([]);
