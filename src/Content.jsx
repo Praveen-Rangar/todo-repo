@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { MdDelete } from "react-icons/MD";
+import { RiDeleteBack2Fill } from "react-icons/ri";
 
 const getLocalItems = () => {
   let list = localStorage.getItem("task");
@@ -124,7 +124,7 @@ const Content = () => {
                 {value}
               </div>
 
-              <MdDelete
+              <RiDeleteBack2Fill
                 onClick={() => {
                   handleRemove(index);
                 }}
@@ -196,7 +196,7 @@ const Content = () => {
                 {value}
               </div>
 
-              <MdDelete
+              <RiDeleteBack2Fill
                 onClick={() => {
                   removeDoneList(index);
                 }}
@@ -218,7 +218,7 @@ const Content = () => {
                 {value}
               </div>
 
-              <MdDelete
+              <RiDeleteBack2Fill
                 onClick={() => {
                   removeOngoingList(index);
                 }}
