@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { RiDeleteBack2Fill } from "react-icons/ri";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 const getLocalItems = () => {
   let list = localStorage.getItem("task");
@@ -45,7 +45,7 @@ const Content = () => {
     setShowForm(true);
   };
 
-  const handleCancleForm = () => {
+  const handleCancelForm = () => {
     setShowForm(false);
   };
 
@@ -71,7 +71,7 @@ const Content = () => {
     localStorage.setItem("ongoingList", JSON.stringify(ongoingList));
   }, [ongoingList]);
 
-  const handleRemove = (i) => {
+  const handleRemoveTask = (i) => {
     const finalData = task.filter((element, index) => {
       return index !== i;
     });
@@ -79,8 +79,8 @@ const Content = () => {
   };
 
   const onHandleTodoChange = (i) => {
-    setDoneList([...doneList, task[i]]);
-    handleRemove(i);
+    setOngoingList([...ongoingList, task[i]]);
+    handleRemoveTask(i);
   };
 
   const removeDoneList = (i) => {
@@ -91,9 +91,14 @@ const Content = () => {
   };
 
   const onHandleDoneListChange = (i) => {
-    setOngoingList([...task, doneList[i]]);
+    setTask([...task, doneList[i]]);
     removeDoneList(i);
   };
+
+  const onHandleOngoingListChange = (i) => {
+    setDoneList([...doneList, ongoingList[i]]);
+    removeOngoingList(i);
+  }
 
   const removeOngoingList = (i) => {
     const finalData = ongoingList.filter((element, index) => {
@@ -124,9 +129,9 @@ const Content = () => {
                 {value}
               </div>
 
-              <RiDeleteBack2Fill
+              <RiDeleteBinLine
                 onClick={() => {
-                  handleRemove(index);
+                  handleRemoveTask(index);
                 }}
                 className="text-2xl text-red-500 cursor-pointer"
               />
@@ -138,13 +143,11 @@ const Content = () => {
         onClick={handleForm}
         className="flex items-center justify-center gap-1 px-5 py-2 mt-5 text-white bg-blue-500 rounded-full"
       >
-        {" "}
         <span>
-          {" "}
           <AiOutlinePlus />
         </span>
-        Add a todo{" "}
-      </button>{" "}
+        Add a todo
+      </button>
       <form
         onSubmit={handleSubmit}
         className={
@@ -170,7 +173,7 @@ const Content = () => {
           </button>
           <button
             type="button"
-            onClick={handleCancleForm}
+            onClick={handleCancelForm}
             className="px-4 py-1.5 ml-3 font-medium border border-gray-300 rounded-md"
           >
             Cancel
@@ -179,6 +182,27 @@ const Content = () => {
       </form>
       <h3 className="mt-4 text-xl font-semibold">Things ongoing</h3>
       <div className="mt-3 animate-pulse">
+        {ongoingList.map((value, index) => {
+          if (value === "") {
+            return;
+          }
+          return (
+            <div className="flex items-center space-x-2.5">
+              <input
+                onClick={() => {
+                  onHandleOngoingListChange(index);
+                }}
+                type="checkbox"
+              />
+              <div className="text-base font-semibold text-gray-700">
+                {value}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <h3 className="mt-4 text-xl font-semibold">Things done</h3>
+      <div className="mt-3 ">
         {doneList.map((value, index) => {
           if (value === "") {
             return;
@@ -189,38 +213,15 @@ const Content = () => {
                 onClick={() => {
                   onHandleDoneListChange(index);
                 }}
-                checked
                 type="checkbox"
               />
               <div className="text-base font-semibold text-gray-700">
                 {value}
               </div>
 
-              <RiDeleteBack2Fill
+              <RiDeleteBinLine
                 onClick={() => {
                   removeDoneList(index);
-                }}
-                className="text-2xl text-red-500 cursor-pointer"
-              />
-            </div>
-          );
-        })}
-      </div>
-      <h3 className="mt-4 text-xl font-semibold">Things done</h3>
-      <div className="mt-3 ">
-        {ongoingList.map((value, index) => {
-          if (value === "") {
-            return;
-          }
-          return (
-            <div className="flex items-center space-x-2.5">
-              <div className="text-base font-semibold text-gray-700">
-                {value}
-              </div>
-
-              <RiDeleteBack2Fill
-                onClick={() => {
-                  removeOngoingList(index);
                 }}
                 className="text-2xl text-red-500 cursor-pointer"
               />
