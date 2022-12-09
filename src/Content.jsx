@@ -22,11 +22,22 @@ const getLocalDoneList = () => {
   }
 };
 
+const getLocalOngoingList = () => {
+  let listOngoing = localStorage.getItem("ongoingList");
+
+  if (listOngoing) {
+    return JSON.parse(listOngoing);
+  } else {
+    return [];
+  }
+};
+
 const Content = () => {
   const [showForm, setShowForm] = useState(false);
   const [text, setText] = useState("");
   const [task, setTask] = useState(getLocalItems());
   const [doneList, setDoneList] = useState(getLocalDoneList());
+  const [ongoingList, setOngoingList] = useState(getLocalOngoingList());
 
   console.log("doneList", doneList);
 
@@ -56,6 +67,10 @@ const Content = () => {
     localStorage.setItem("doneList", JSON.stringify(doneList));
   }, [doneList]);
 
+  useEffect(() => {
+    localStorage.setItem("ongoingList", JSON.stringify(ongoingList));
+  }, [ongoingList]);
+
   const handleRemove = (i) => {
     const finalData = task.filter((element, index) => {
       return index !== i;
@@ -76,11 +91,16 @@ const Content = () => {
   };
 
   const onHandleDoneListChange = (i) => {
-    setTask([...task, doneList[i]]);
+    setOngoingList([...task, doneList[i]]);
     removeDoneList(i);
   };
 
-  console.log("task", task);
+  const removeOngoingList = (i) => {
+    const finalData = ongoingList.filter((element, index) => {
+      return index !== i;
+    });
+    setOngoingList(finalData);
+  };
 
   return (
     <div className="p-8">
@@ -157,8 +177,8 @@ const Content = () => {
           </button>
         </div>
       </form>
-      <h3 className="mt-4 text-xl font-semibold">Things done</h3>
-      <div className="mt-3 ">
+      <h3 className="mt-4 text-xl font-semibold">Things ongoing</h3>
+      <div className="mt-3 animate-pulse">
         {doneList.map((value, index) => {
           if (value === "") {
             return;
@@ -179,6 +199,28 @@ const Content = () => {
               <MdDelete
                 onClick={() => {
                   removeDoneList(index);
+                }}
+                className="text-2xl text-red-500 cursor-pointer"
+              />
+            </div>
+          );
+        })}
+      </div>
+      <h3 className="mt-4 text-xl font-semibold">Things done</h3>
+      <div className="mt-3 ">
+        {ongoingList.map((value, index) => {
+          if (value === "") {
+            return;
+          }
+          return (
+            <div className="flex items-center space-x-2.5">
+              <div className="text-base font-semibold text-gray-700">
+                {value}
+              </div>
+
+              <MdDelete
+                onClick={() => {
+                  removeOngoingList(index);
                 }}
                 className="text-2xl text-red-500 cursor-pointer"
               />
