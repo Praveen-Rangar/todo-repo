@@ -1,74 +1,86 @@
-import React, { useState } from "react";
-import { Delete } from "@material-ui/icons";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
+import { MdDelete } from "react-icons/MD";
 
-function getLocalItems() {
-  const list = localStorage.getItem("task");
+const getLocalItems = () => {
+  let list = localStorage.getItem("task");
 
   if (list) {
     return JSON.parse(list);
   } else {
     return [];
   }
-}
+};
 
-function Content() {
+const getLocalDoneList = () => {
+  let listDone = localStorage.getItem("doneList");
+
+  if (listDone) {
+    return JSON.parse(listDone);
+  } else {
+    return [];
+  }
+};
+
+const Content = () => {
+  const [showForm, setShowForm] = useState(false);
   const [text, setText] = useState("");
   const [task, setTask] = useState(getLocalItems());
-  const [sahi, setSahi] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [doneList, setDoneList] = useState([]);
+  const [doneList, setDoneList] = useState(getLocalDoneList());
 
-  function handleText(event) {
+  console.log("doneList", doneList);
+
+  const handleForm = () => {
+    setShowForm(true);
+  };
+
+  const handleCancleForm = () => {
+    setShowForm(false);
+  };
+
+  const handleText = (event) => {
     setText(event.target.value);
+  };
 
-    setSahi(false);
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setText("");
     setTask([...task, text]);
-    setSahi(true);
-  }
-
-  function removeTask(a) {
-    const finalData = task.filter((element, index) => {
-      return index !== a;
-    });
-
-    setTask(finalData);
-  }
+  };
 
   useEffect(() => {
     localStorage.setItem("task", JSON.stringify(task));
   }, [task]);
 
-  function handleForm() {
-    setShowForm(true);
-  }
+  useEffect(() => {
+    localStorage.setItem("doneList", JSON.stringify(doneList));
+  }, [doneList]);
 
-  function handleFormOff() {
-    setShowForm(false);
-  }
-
-  const onHandleTodoChange = (index) => {
-    doneList.push(task[index]);
-    removeTask(index);
+  const handleRemove = (i) => {
+    const finalData = task.filter((element, index) => {
+      return index !== i;
+    });
+    setTask(finalData);
   };
 
-  function removeDoneList(i) {
+  const onHandleTodoChange = (i) => {
+    setDoneList([...doneList, task[i]]);
+    handleRemove(i);
+  };
+
+  const removeDoneList = (i) => {
     const finalData = doneList.filter((element, index) => {
       return index !== i;
     });
-
     setDoneList(finalData);
-  }
-
-  const handleDoneListChange = (index) => {
-    task.push(doneList[index]);
-    removeDoneList(index);
   };
+
+  const onHandleDoneListChange = (i) => {
+    setTask([...task, doneList[i]]);
+    removeDoneList(i);
+  };
+
+  console.log("task", task);
 
   return (
     <div className="p-8">
@@ -77,29 +89,34 @@ function Content() {
       <div className="mt-3 ">
         {task.map((value, index) => {
           if (value === "") {
-            setSahi(false);
+            return;
           }
+
           return (
             <div className="flex items-center space-x-2.5">
               <input
+                onClick={() => {
+                  onHandleTodoChange(index);
+                }}
                 type="checkbox"
-                onClick={() => onHandleTodoChange(index)}
               />
               <div className="text-base font-semibold text-gray-700">
                 {value}
               </div>
 
-              <Delete
-                onClick={() => removeTask(index)}
-                className="text-5xl text-red-500 cursor-pointer"
+              <MdDelete
+                onClick={() => {
+                  handleRemove(index);
+                }}
+                className="text-2xl text-red-500 cursor-pointer"
               />
             </div>
           );
         })}
       </div>
       <button
-        className="flex items-center justify-center gap-1 px-5 py-2 mt-5 text-white bg-blue-500 rounded-full"
         onClick={handleForm}
+        className="flex items-center justify-center gap-1 px-5 py-2 mt-5 text-white bg-blue-500 rounded-full"
       >
         {" "}
         <span>
@@ -111,30 +128,29 @@ function Content() {
       <form
         onSubmit={handleSubmit}
         className={
-          showForm == false
+          showForm === false
             ? "hidden"
             : "p-6 mt-5 space-y-4 border border-gray-100 rounded-md shadow-sm"
         }
       >
         <h3 className="text-lg font-medium">Write your todo</h3>
         <input
-          required
           onChange={handleText}
+          required
           type="text"
           placeholder="Write your todo here"
           className="p-3 border border-gray-300 rounded-md shadow-sm h-9 w-72 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
         />
         <div>
           <button
-            disabled={sahi}
             type="submit"
             className="font-medium px-4 py-1.5 text-white bg-blue-500 border border-blue-500 rounded-md"
           >
             Save
           </button>
           <button
-            onClick={handleFormOff}
             type="button"
+            onClick={handleCancleForm}
             className="px-4 py-1.5 ml-3 font-medium border border-gray-300 rounded-md"
           >
             Cancel
@@ -144,20 +160,27 @@ function Content() {
       <h3 className="mt-4 text-xl font-semibold">Things done</h3>
       <div className="mt-3 ">
         {doneList.map((value, index) => {
+          if (value === "") {
+            return;
+          }
           return (
             <div className="flex items-center space-x-2.5">
               <input
-                checked={true}
-                onClick={() => handleDoneListChange(index)}
+                onClick={() => {
+                  onHandleDoneListChange(index);
+                }}
+                checked
                 type="checkbox"
               />
               <div className="text-base font-semibold text-gray-700">
                 {value}
               </div>
 
-              <Delete
-                onClick={() => removeDoneList(index)}
-                className="text-5xl text-red-500 cursor-pointer"
+              <MdDelete
+                onClick={() => {
+                  removeDoneList(index);
+                }}
+                className="text-2xl text-red-500 cursor-pointer"
               />
             </div>
           );
@@ -165,6 +188,6 @@ function Content() {
       </div>
     </div>
   );
-}
+};
 
 export default Content;
