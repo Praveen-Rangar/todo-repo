@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { RiDeleteBinLine } from "react-icons/ri";
+import {BiTime} from "react-icons/bi"
 
 const getLocalItems = () => {
   let list = localStorage.getItem("task");
@@ -38,8 +39,8 @@ const Content = () => {
   const [task, setTask] = useState(getLocalItems());
   const [doneList, setDoneList] = useState(getLocalDoneList());
   const [ongoingList, setOngoingList] = useState(getLocalOngoingList());
-
-  console.log("doneList", doneList);
+  const [PickupTiming, setPickupTiming] = useState([])
+  const [TotalTodoTime, setTotalTodoTime] = useState('');
 
   const handleForm = () => {
     setShowForm(true);
@@ -79,6 +80,11 @@ const Content = () => {
   };
 
   const onHandleTodoChange = (i) => {
+    const timeNow = new Date();
+    const hourNow = timeNow.getHours();
+    const minuteNow = timeNow.getMinutes();
+    const secondNow = timeNow.getSeconds();
+    setPickupTiming([hourNow, minuteNow, secondNow])
     setOngoingList([...ongoingList, task[i]]);
     handleRemoveTask(i);
   };
@@ -106,6 +112,23 @@ const Content = () => {
     });
     setOngoingList(finalData);
   };
+
+  const showTaskTime = (i) => {
+     const timeNow = new Date();
+     const hourNow = timeNow.getHours();
+     const minuteNow = timeNow.getMinutes();
+     const secondNow = timeNow.getSeconds();
+     const totalHour = hourNow - PickupTiming[0];
+     const totalMinute = minuteNow - PickupTiming[1] ;
+     const totalSecond = secondNow - PickupTiming[2];
+     const totalTime = `${totalHour} Hour ${totalMinute} Minute`;
+     const totalSeconds = `${totalSecond} sec`
+    if(totalHour || totalMinute){
+      setTotalTodoTime(totalTime)
+    } else {
+      setTotalTodoTime(totalSeconds)
+    }
+  }
 
   return (
     <div className="p-8">
@@ -195,7 +218,7 @@ const Content = () => {
                 type="checkbox"
               />
               <div className="text-base font-semibold text-gray-700">
-                {value}
+                {value} <p onClick={showTaskTime}>(check time)- {TotalTodoTime} </p>
               </div>
             </div>
           );
@@ -213,6 +236,7 @@ const Content = () => {
                 onClick={() => {
                   onHandleDoneListChange(index);
                 }}
+                checked
                 type="checkbox"
               />
               <div className="text-base font-semibold text-gray-700">
